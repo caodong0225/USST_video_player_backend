@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: singularity
+  datasource:
+    # mysql
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: root
+    password: 123456
+    url: jdbc:mysql://localhost:3306/singularity?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+minio:
+  endpoint: http://localhost:9000
+  access-key: minioadmin
+  secret-key: minioadmin
+  bucket-name: video
