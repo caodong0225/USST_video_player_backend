@@ -9,12 +9,13 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import top.caodong0225.videoplayer.dto.BaseDataResponseDTO;
+import top.caodong0225.videoplayer.dto.UploadVideoInfoDTO;
 import top.caodong0225.videoplayer.entity.UserInfo;
+import top.caodong0225.videoplayer.entity.UserVideo;
 import top.caodong0225.videoplayer.entity.VideoInfo;
+import top.caodong0225.videoplayer.service.IUserVideoService;
 import top.caodong0225.videoplayer.service.IVideoInfoService;
 
 import java.io.IOException;
@@ -36,10 +37,12 @@ public class VideoPlayerController {
     private String videoFilePath;
 
     private final IVideoInfoService videoInfoService;
+    private final IUserVideoService userVideoService;
 
     @Autowired
-    public VideoPlayerController(IVideoInfoService videoInfoService) {
+    public VideoPlayerController(IVideoInfoService videoInfoService, IUserVideoService userVideoService) {
         this.videoInfoService = videoInfoService;
+        this.userVideoService = userVideoService;
     }
 
     @GetMapping("/video")
@@ -61,20 +64,39 @@ public class VideoPlayerController {
     public BaseDataResponseDTO getRandomVideo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            return new BaseDataResponseDTO(400,"Token不存在！");
+            return new BaseDataResponseDTO(400, "Token不存在！");
         }
         UserInfo userInfo = parseToken(token);
         List<VideoInfo> videoInfos = videoInfoService.getVideoInfosNotVisited(userInfo.getUuid());
         if (videoInfos.isEmpty()) {
-            return new BaseDataResponseDTO(400,"没有未访问的视频！");
+            return new BaseDataResponseDTO(400, "没有未访问的视频！");
         }
         // 获取未访问的第一个视频
         VideoInfo videoInfo = videoInfos.get(0);
         return new BaseDataResponseDTO(videoInfo);
     }
 
+    @PostMapping("/video/visit")
+    @ResponseBody
+        public BaseDataResponseDTO visitVideo(HttpServletRequest request, @RequestBody UploadVideoInfoDTO uploadVideoInfoDTO) {
+        String token = request.getHeader("Authorization");
+        if (token == null) {
+            return new BaseDataResponseDTO(400, "Token不存在！");
+        }
+        UserInfo userInfo = parseToken(token);
+        UserVideo userVideo = new UserVideo();
+        userVideo.setUserId(userInfo.getId());
+        userVideo.setVideoId(uploadVideoInfoDTO.getVideoId());
+        userVideo.setDuration(uploadVideoInfoDTO.getDuration());
+        if (userVideoService.insertOrUpdateUserVideo(userVideo)) {
+            return new BaseDataResponseDTO();
+        } else {
+            return new BaseDataResponseDTO(400, "失败！");
+        }
+    }
+
     public UserInfo parseToken(String token) {
-        Map<String, Object> temp =  JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token).getClaim("user").asMap();
+        Map<String, Object> temp = JWT.require(Algorithm.HMAC256(SECRET_KEY)).build().verify(token).getClaim("user").asMap();
         UserInfo userInfo = new UserInfo();
         userInfo.setId((Integer) temp.get("id"));
         userInfo.setUuid((String) temp.get("uuid"));

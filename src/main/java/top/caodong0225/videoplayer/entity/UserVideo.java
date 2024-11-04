@@ -38,7 +38,7 @@ public class UserVideo implements Serializable {
     private LocalDateTime lastVisitedTime;
 
     /**
-     * 观看视角
+     * 观看时间
      */
-    private Integer duration;
+    private Long duration;
 }

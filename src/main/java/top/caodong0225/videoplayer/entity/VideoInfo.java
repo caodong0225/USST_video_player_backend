@@ -34,5 +34,5 @@ public class VideoInfo implements Serializable {
     /**
      * 视频的时长
      */
-    private Integer videoTime;
+    private Long videoTime;
 }
