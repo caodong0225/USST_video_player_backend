@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import top.caodong0225.videoplayer.dto.BaseDataResponseDTO;
 import top.caodong0225.videoplayer.entity.UserInfo;
 import top.caodong0225.videoplayer.entity.VideoInfo;
 import top.caodong0225.videoplayer.service.IVideoInfoService;
@@ -55,28 +57,20 @@ public class VideoPlayerController {
     }
 
     @GetMapping("/play")
-    public ResponseEntity<UrlResource> getRandomVideo(HttpServletRequest request) throws IOException {
+    @ResponseBody
+    public BaseDataResponseDTO getRandomVideo(HttpServletRequest request) {
         String token = request.getHeader("Authorization");
         if (token == null) {
-            return ResponseEntity.badRequest().build();
+            return new BaseDataResponseDTO(400,"Token不存在！");
         }
         UserInfo userInfo = parseToken(token);
         List<VideoInfo> videoInfos = videoInfoService.getVideoInfosNotVisited(userInfo.getUuid());
         if (videoInfos.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            return new BaseDataResponseDTO(400,"没有未访问的视频！");
         }
-
-
-        Path videoPath = Paths.get(videoFilePath, "loading.mp4");
-        UrlResource videoResource = new UrlResource(videoPath.toUri());
-
-        if (!videoResource.exists()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType("video/mp4"))
-                .body(videoResource);
+        // 获取未访问的第一个视频
+        VideoInfo videoInfo = videoInfos.get(0);
+        return new BaseDataResponseDTO(videoInfo);
     }
 
     public UserInfo parseToken(String token) {
