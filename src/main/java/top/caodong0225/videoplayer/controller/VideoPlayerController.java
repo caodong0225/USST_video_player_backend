@@ -67,9 +67,9 @@ public class VideoPlayerController {
             return new BaseDataResponseDTO(400, "Token不存在！");
         }
         UserInfo userInfo = parseToken(token);
-        List<VideoInfo> videoInfos = videoInfoService.getVideoInfosNotVisited(userInfo.getUuid());
+        List<VideoInfo> videoInfos = videoInfoService.getVideoInfosNotVisited(userInfo.getId());
         if (videoInfos.isEmpty()) {
-            return new BaseDataResponseDTO(400, "没有未访问的视频！");
+            return new BaseDataResponseDTO(null);
         }
         // 获取未访问的第一个视频
         VideoInfo videoInfo = videoInfos.get(0);

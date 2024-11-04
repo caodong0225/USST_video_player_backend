@@ -11,10 +11,9 @@ import java.util.List;
  * @since 2024-11-03
  */
 public interface VideoInfoMapper extends BaseMapper<VideoInfo> {
-    @Select("SELECT v.*\n" +
-            "FROM video_info v\n" +
-            "         LEFT JOIN user_video uv ON v.id = uv.video_id\n" +
-            "         LEFT JOIN user_info u ON uv.user_id = u.id AND u.uuid = #{uuid}\n" +
-            "WHERE u.id IS NULL;")
-    List<VideoInfo> getVideoInfosNotVisited(String uuid);
+    @Select("SELECT vi.*\n" +
+            "FROM video_info vi\n" +
+            "         LEFT JOIN user_video uv ON vi.id = uv.video_id AND uv.user_id = #{userId}\n" +
+            "WHERE uv.video_id IS NULL;")
+    List<VideoInfo> getVideoInfosNotVisited(Integer userId);
 }

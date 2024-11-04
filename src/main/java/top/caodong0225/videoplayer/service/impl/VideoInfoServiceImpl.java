@@ -20,8 +20,8 @@ public class VideoInfoServiceImpl extends ServiceImpl<VideoInfoMapper, VideoInfo
     }
 
     @Override
-    public List<VideoInfo> getVideoInfosNotVisited(String uuid) {
-        return baseMapper.getVideoInfosNotVisited(uuid);
+    public List<VideoInfo> getVideoInfosNotVisited(Integer userId) {
+        return baseMapper.getVideoInfosNotVisited(userId);
     }
 
 

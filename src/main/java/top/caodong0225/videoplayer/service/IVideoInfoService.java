@@ -11,6 +11,6 @@ import java.util.List;
  */
 public interface IVideoInfoService extends IService<VideoInfo> {
     List<VideoInfo> getVideoInfos();
-    List<VideoInfo> getVideoInfosNotVisited(String uuid);
+    List<VideoInfo> getVideoInfosNotVisited(Integer userId);
 
 }
